@@ -1,6 +1,7 @@
 const url = require('url');
 const querystring = require('querystring');
 const routes = require('./routes/routes');
+const staticFile = require('./routes/staticFile');
 
 function handle(req, cb) {
 	let data = '';
@@ -28,7 +29,9 @@ function requestHandle(req, data, cb) {
                 return req.connection.destory();
             }
 
-            let params = querystring.parse(data);
+            // 前端上传application/json,使用querystring会解析成对象属性
+            //let params = querystring.parse(data);
+            let params = JSON.parse(data);
 
             cb(params);
 
@@ -44,7 +47,10 @@ function routeHandle(req, res, params) {
 		routerItem = routes.isRouter(pathname);
 
 	if (routerItem) {
+console.info(`${routerItem} : ${JSON.stringify(params)}`);
         return routes.list[routerItem](res, pathname, params, req.method);
+    }else{
+    	return staticFile(res, pathname);
     }
 }
 
